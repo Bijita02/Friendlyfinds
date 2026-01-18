@@ -1,8 +1,7 @@
-// backend/src/models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  username: {            // matches frontend
+  username: {         
     type: String,
     required: true,
   },
@@ -16,7 +15,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   profileImage: {        
-    type: String,        // store filename like "image-12345.png"
+    type: String,     
     default: null,
   },
 }, { timestamps: true });
