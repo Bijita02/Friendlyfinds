@@ -95,6 +95,13 @@ const Furniture = () => {
       alert("Please fill in all required fields");
       return;
     }
+      const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("Please login to place an order");
+    return;
+  }
+
 
     try {
       setLoading(true);
@@ -114,14 +121,14 @@ const Furniture = () => {
         buyerId: null,
       };
 
-      const res = await fetch(
-        "http://localhost:5000/api/orders/direct-purchase",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderData),
-        }
-      );
+       const res = await fetch("http://localhost:5000/api/orders/direct-purchase", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(orderData),
+    });
 
       if (!res.ok) {
         const errorText = await res.text();

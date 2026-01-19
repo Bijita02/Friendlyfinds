@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const { createNotification } = require('../controllers/notificationController');
+const { authMiddleware } = require('../middleware/auth');
 
 // Order Schema
 const orderSchema = new mongoose.Schema({
@@ -107,7 +108,7 @@ const orderSchema = new mongoose.Schema({
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
 // POST: Direct Purchase
-router.post('/direct-purchase', async (req, res) => {
+router.post('/direct-purchase', authMiddleware, async (req, res) => {
   try {
     const { 
       productId, productName, productImage, price, quantity = 1,
@@ -129,7 +130,7 @@ router.post('/direct-purchase', async (req, res) => {
       orderId,
       orderType: 'direct_purchase',
       buyerInfo: { name: buyerName, email: buyerEmail, location: buyerLocation },
-      buyerId: buyerId || null,
+      buyerId: req.user.id,
       totalAmount: subtotal,
       sellers: [{
         sellerId: sellerId || null,
@@ -195,7 +196,7 @@ router.post('/direct-purchase', async (req, res) => {
 });
 
 // POST: Cart Checkout
-router.post('/cart-checkout', async (req, res) => {
+router.post('/cart-checkout', authMiddleware,async (req, res) => {
   try {
     const { 
       sellers, totalAmount, buyerName, buyerEmail, buyerLocation,
@@ -245,7 +246,7 @@ router.post('/cart-checkout', async (req, res) => {
       orderId,
       orderType: 'cart_checkout',
       buyerInfo: { name: buyerName, email: buyerEmail, location: buyerLocation },
-      buyerId: buyerId || null,
+      buyerId:  req.user.id,
       totalAmount: parseFloat(totalAmount),
       sellers: processedSellers,
       shippingAddress: shippingAddress || {},
