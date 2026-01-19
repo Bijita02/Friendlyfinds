@@ -199,6 +199,46 @@
 .dropdown-item.logout svg {
   color: #dc2626;
 }
+.notification-bell {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-bell .badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+
+.notification-dropdown {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  background: white;
+  width: 260px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.15);
+  display: none;
+  z-index: 200;
+}
+
+.notification-bell:hover .notification-dropdown {
+  display: block;
+}
+
+.notification-dropdown div {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-dropdown .unread {
+  background: #f0fdf4;
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {

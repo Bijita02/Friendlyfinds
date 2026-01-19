@@ -4,6 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const { createNotification } = require('../controllers/notificationController');
 
 // Order Schema
 const orderSchema = new mongoose.Schema({
@@ -147,6 +148,13 @@ router.post('/direct-purchase', async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
+    await createNotification({
+  userId: sellerId,
+  title: 'New Order Received',
+  message: `Your product "${productName}" has been ordered.`,
+  type: 'order'
+});
+
 
     // Delete product from database
     try {
@@ -248,6 +256,15 @@ router.post('/cart-checkout', async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
+    for (const seller of processedSellers) {
+  await createNotification({
+    userId: seller.sellerId,
+    title: 'New Order Received',
+    message: `You have received a new order with ${seller.items.length} item(s).`,
+    type: 'order'
+  });
+}
+
 
     // Delete all purchased products
     try {

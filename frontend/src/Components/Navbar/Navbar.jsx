@@ -5,12 +5,15 @@ import { useAuth } from '../../context/AuthContext';
 import { useSearch } from '../../context/SearchContext';
 import './Navbar.css';
 import logo from '../Assets/logo.png';
+import { useNotifications } from '../../context/NotificationContext';
+
 
 const Navbar = () => {
   const { getCartCount } = useCart();
   const cartCount = getCartCount()
   const { user, logout } = useAuth();
   const { searchQuery, setSearchQuery } = useSearch();
+const { unreadCount, notifications } = useNotifications();
 
   const handleLogout = () => {
     logout();
@@ -58,6 +61,20 @@ const Navbar = () => {
             <span className="cart-badge">{getCartCount()}</span>
           </a>
         </div>
+        <div className="notification-bell">
+  🔔
+  {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+  <div className="notification-dropdown">
+    {notifications.length === 0 && <p>No notifications</p>}
+    {notifications.map(n => (
+      <div key={n._id} className={!n.isRead ? 'unread' : ''}>
+        <strong>{n.title}</strong>
+        <p>{n.message}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
 
         {/* User Menu */}
            <div className="user-menu">
