@@ -9,16 +9,24 @@ export const NotificationProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    try {
-      const res = await fetch('http://localhost:5000/api/notifications', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+    const res = await fetch('http://localhost:5000/api/notifications', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-      const data = await res.json();
-      if (data.success) setNotifications(data.notifications);
-    } catch (err) {
-      console.error('Notification fetch error:', err);
-    }
+    const data = await res.json();
+    if (data.success) setNotifications(data.notifications);
+  };
+
+  const markAsRead = async (id) => {
+    const token = localStorage.getItem('token');
+    await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    setNotifications(prev =>
+      prev.map(n => n._id === id ? { ...n, isRead: true } : n)
+    );
   };
 
   //  INITIAL LOAD + AUTO REFRESH
@@ -31,7 +39,7 @@ export const NotificationProvider = ({ children }) => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead }}>
       {children}
     </NotificationContext.Provider>
   );

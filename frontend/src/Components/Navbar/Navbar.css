@@ -199,35 +199,55 @@
 .dropdown-item.logout svg {
   color: #dc2626;
 }
-.notification-bell {
-  position: relative;
-  cursor: pointer;
-}
-
-.notification-bell .badge {
-  position: absolute;
-  top: -5px;
-  right: -8px;
-  background: red;
-  color: white;
-  font-size: 12px;
-  border-radius: 50%;
-  padding: 2px 6px;
-}
 
 .notification-dropdown {
   position: absolute;
   right: 0;
-  top: 30px;
-  background: white;
-  width: 260px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.15);
-  display: none;
-  z-index: 200;
+  top: 40px;
+  width: 320px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  padding: 8px;
+  max-height: 380px;
+  overflow-y: auto;
 }
 
-.notification-bell:hover .notification-dropdown {
-  display: block;
+.notification-item {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.notification-item.unread {
+  background: #eef4ff;
+  border-left: 4px solid #2563eb;
+}
+
+.notification-item:hover {
+  background: #f5f7fa;
+}
+
+.notification-item strong {
+  font-size: 14px;
+}
+
+.notification-item p {
+  font-size: 13px;
+  color: #555;
+}
+
+.notification-item small {
+  font-size: 11px;
+  color: #888;
+}
+
+
+.notification-bell:hover {
+  background: #f3f4f6;
+  color: #10b981;
+  transform: translateY(-1px);
 }
 
 .notification-dropdown div {
@@ -238,6 +258,50 @@
 .notification-dropdown .unread {
   background: #f0fdf4;
 }
+
+.notification-bell {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  color: #4b5563;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.notification-bell:hover {
+  background: #f3f4f6;
+  color: #10b981;
+  transform: translateY(-1px);
+}
+
+.notification-bell .badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+
+  min-width: 18px;
+  height: 18px;
+
+  background: #ef4444;
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+}
+
 
 
 /* Responsive */

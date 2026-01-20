@@ -3,7 +3,8 @@ const Notification = require('../models/notificationModel');
 exports.getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({ userId: req.user.id })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(10);
 
     res.json({ success: true, notifications });
   } catch (error) {
@@ -16,7 +17,7 @@ exports.markAsRead = async (req, res) => {
     await Notification.findByIdAndUpdate(req.params.id, { isRead: true });
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false });
   }
 };
 
