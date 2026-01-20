@@ -20,6 +20,16 @@ const { unreadCount, notifications } = useNotifications();
     window.location.reload();
   };
 
+const formatTime = (date) => {
+  return new Date(date).toLocaleString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: 'numeric',
+    month: 'short'
+  });
+};
+
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -64,12 +74,15 @@ const { unreadCount, notifications } = useNotifications();
         <div className="notification-bell">
   🔔
   {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+
   <div className="notification-dropdown">
     {notifications.length === 0 && <p>No notifications</p>}
+
     {notifications.map(n => (
-      <div key={n._id} className={!n.isRead ? 'unread' : ''}>
+      <div key={n._id} className={`notification-item ${!n.isRead ? 'unread' : ''}`}>
         <strong>{n.title}</strong>
         <p>{n.message}</p>
+        <small>{formatTime(n.createdAt)}</small>
       </div>
     ))}
   </div>

@@ -149,10 +149,19 @@ router.post('/direct-purchase', authMiddleware, async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
-    await createNotification({
+    // SELLER notification
+await createNotification({
   userId: sellerId,
   title: 'New Order Received',
-  message: `Your product "${productName}" has been ordered.`,
+  message: `A buyer from ${buyerLocation} ordered "${productName}".`,
+  type: 'order'
+});
+
+// BUYER notification
+await createNotification({
+  userId: req.user.id,
+  title: 'Order Placed Successfully',
+  message: `Your order for "${productName}" will be delivered to ${buyerLocation}.`,
   type: 'order'
 });
 
@@ -258,14 +267,25 @@ router.post('/cart-checkout', authMiddleware,async (req, res) => {
 
     const savedOrder = await newOrder.save();
     for (const seller of processedSellers) {
+  
+// SELLER notifications
+for (const seller of processedSellers) {
   await createNotification({
     userId: seller.sellerId,
     title: 'New Order Received',
-    message: `You have received a new order with ${seller.items.length} item(s).`,
+    message: `You received an order with ${seller.items.length} item(s).`,
     type: 'order'
   });
 }
+}
 
+// BUYER notification
+await createNotification({
+  userId: req.user.id,
+  title: 'Order Placed Successfully',
+  message: `Your order will be shipped to ${buyerLocation}.`,
+  type: 'order'
+});
 
     // Delete all purchased products
     try {

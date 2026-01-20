@@ -21,23 +21,17 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
-  // 🔥 INITIAL LOAD + AUTO REFRESH
-  useEffect(() => {
-    fetchNotifications(); // first load
-
-    const interval = setInterval(() => {
-      fetchNotifications(); // auto refresh every 5s
-    }, 5000);
-
+  //  INITIAL LOAD + AUTO REFRESH
+   useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
   }, []);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <NotificationContext.Provider
-      value={{ notifications, unreadCount, fetchNotifications }}
-    >
+    <NotificationContext.Provider value={{ notifications, unreadCount }}>
       {children}
     </NotificationContext.Provider>
   );

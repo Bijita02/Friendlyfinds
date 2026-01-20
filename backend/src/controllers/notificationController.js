@@ -22,6 +22,7 @@ exports.markAsRead = async (req, res) => {
 
 exports.createNotification = async ({ userId, title, message, type }) => {
   try {
+    if (!userId) return;
     await Notification.create({ userId, title, message, type });
   } catch (err) {
     console.error('Notification error:', err.message);
