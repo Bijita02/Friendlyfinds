@@ -19,6 +19,10 @@ const notificationSchema = new mongoose.Schema({
     enum: ['order', 'product', 'system'],
     default: 'system'
   },
+      phone: {
+      type: String
+    },
+
   isRead: {
     type: Boolean,
     default: false
