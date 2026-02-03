@@ -545,7 +545,6 @@
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
-/* Listings Grid */
 .ff-listings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -951,7 +950,6 @@
   margin: 0;
 }
 
-/* Form */
 .ff-form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -995,7 +993,6 @@
   resize: none;
 }
 
-/* Modal Actions */
 .ff-modal-actions {
   display: flex;
   gap: 1rem;
@@ -1096,20 +1093,6 @@
 
   .ff-form-grid {
     grid-template-columns: 1fr;
-  }
-
-  .ff-saved-item {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .ff-saved-actions {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .ff-contact-seller-btn {
-    width: 100%;
   }
 
   .ff-modal-actions {

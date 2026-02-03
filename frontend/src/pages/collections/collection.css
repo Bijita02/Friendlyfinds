@@ -1,6 +1,6 @@
 .furniture-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+  grid-template-columns: repeat(4, 1fr); 
   gap: 1.5rem;
 }
 
@@ -179,7 +179,6 @@
   gap: 0;
 }
 
-/* Product Preview Section */
 .modal-product-preview {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 40px;
@@ -271,7 +270,6 @@
   font-size: 1.25rem;
 }
 
-/* Form Section */
 .modal-form-section {
   padding: 40px;
   background: white;
@@ -380,7 +378,6 @@
   font-size: 1.1rem;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .modal-layout {
     grid-template-columns: 1fr;

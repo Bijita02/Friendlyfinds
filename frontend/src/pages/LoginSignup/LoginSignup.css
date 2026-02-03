@@ -64,7 +64,6 @@
   margin-bottom: 3rem;
 }
 
-/* Form Header */
 .form-header {
   margin-bottom: 2rem;
 }
@@ -104,7 +103,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Form Fields */
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -165,7 +163,6 @@
   padding: 0;
 }
 
-/* Error Message */
 .error-message {
   display: flex;
   align-items: center;
@@ -181,7 +178,6 @@
   flex-shrink: 0;
 }
 
-/* Terms Checkbox */
 .terms-checkbox {
   display: flex;
   align-items: flex-start;
@@ -210,7 +206,6 @@
   text-decoration: underline;
 }
 
-/* Submit Button */
 .submit-btn {
   display: flex;
   align-items: center;
@@ -240,7 +235,6 @@
   cursor: not-allowed;
 }
 
-/* Loading Spinner */
 .spinner {
   animation: spin 1s linear infinite;
 }
@@ -254,7 +248,6 @@
   }
 }
 
-/* Switch Mode */
 .switch-mode {
   text-align: center;
   font-size: 0.875rem;
@@ -277,7 +270,6 @@
   text-decoration: underline;
 }
 
-/* Info Section at Bottom */
 .info-section-bottom {
   width: 100%;
   max-width: 1200px;
@@ -306,7 +298,6 @@
   font-weight: 500;
 }
 
-/* Info Cards Grid */
 .info-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -395,7 +386,6 @@
   background: #e5e7eb;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .info-cards {
     grid-template-columns: repeat(2, 1fr);
