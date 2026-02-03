@@ -43,7 +43,6 @@ const Checkout = () => {
   }, [cartItems, navigate]);
 
   const getAuthToken = () => {
-
     const token = user?.token || 
                   user?.accessToken || 
                   user?.authToken ||
@@ -225,6 +224,7 @@ const Checkout = () => {
 
         <div className="checkout-container">
           <div className="checkout-grid">
+
             <div className="checkout-form-section">
               <button className="back-button" onClick={() => navigate('/cart')}>
                 <span>←</span> Back to Cart
@@ -234,7 +234,7 @@ const Checkout = () => {
                 <h2>Buyer Information</h2>
 
                 <form onSubmit={handleSubmit}>
- 
+
                   <div className="form-section">
                     <h3>Contact Information</h3>
                     
@@ -284,6 +284,7 @@ const Checkout = () => {
                     </div>
                   </div>
 
+                  {/* Pickup Details */}
                   <div className="form-section">
                     <h3>Pickup Details</h3>
                     
