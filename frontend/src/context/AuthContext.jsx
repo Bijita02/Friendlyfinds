@@ -1,17 +1,24 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
 
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+      const userData = JSON.parse(storedUser);
+  
+      setUser({
+        ...userData,
+        token: token
+      });
     }
     setLoading(false);
   }, []);
@@ -32,7 +39,11 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
-      setUser(data.user);
+      
+      setUser({
+        ...data.user,
+        token: data.token
+      });
 
       return { success: true };
     } catch {
@@ -56,7 +67,11 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
-      setUser(data.user);
+   
+      setUser({
+        ...data.user,
+        token: data.token
+      });
 
       return { success: true };
     } catch {
