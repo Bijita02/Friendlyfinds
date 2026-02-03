@@ -9,7 +9,6 @@ export default function Collection() {
   const [priceRange, setPriceRange] = useState("all");
   const [loading, setLoading] = useState(true);
 
-  // BUY MODAL STATES
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [buyForm, setBuyForm] = useState({
@@ -23,7 +22,6 @@ export default function Collection() {
   const { addToCart } = useCart();
   const { searchQuery } = useSearch();
 
-  // FETCH PRODUCTS
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -41,7 +39,6 @@ export default function Collection() {
     fetchProducts();
   }, []);
 
-  // FILTERED ITEMS BY SEARCH + PRICE
   const filteredItems = items.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -59,7 +56,6 @@ export default function Collection() {
     return true;
   });
 
-  // BUY HANDLERS
   const handleBuyClick = (item) => {
     setSelectedItem(item);
     setShowBuyModal(true);
@@ -127,7 +123,6 @@ export default function Collection() {
     }
   };
 
-  // ADD TO CART
   const handleAddToCart = (item) => {
     addToCart(item);
     alert(`${item.name || item.title} added to cart!`);
@@ -146,7 +141,7 @@ export default function Collection() {
         </header>
 
         <div className="furniture-container">
-          {/* SIDEBAR */}
+
           <aside className="furniture-sidebar">
             <div className="filter-section">
               <h3>Price Range</h3>
@@ -170,7 +165,6 @@ export default function Collection() {
             </div>
           </aside>
 
-          {/* MAIN GRID */}
           <main className="furniture-main">
             {loading ? (
               <div className="no-results">Loading products...</div>
@@ -220,7 +214,6 @@ export default function Collection() {
         </div>
       </div>
 
-      {/* BUY MODAL */}
       {showBuyModal && selectedItem && (
         <div className="modal-overlay">
           <div className="modal-content buy-modal">

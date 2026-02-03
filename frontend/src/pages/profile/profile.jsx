@@ -55,14 +55,7 @@ const Profile = () => {
         bio: data.bio || 'No bio added yet.',
         createdAt: data.createdAt || new Date().toISOString(),
         profileImage: data.profileImage || null,
-        stats: {
-          listings: data.stats?.listings || 0,
-          rating: data.stats?.rating || 0,
-          sold: data.stats?.sold || 0
-        },
-        listings: data.listings || [],
-        savedItems: data.savedItems || [],
-        reviews: data.reviews || []
+        listings: data.listings || []
       };
 
       setUserData(transformedData);
@@ -108,7 +101,6 @@ const Profile = () => {
         return;
       }
 
-      // Prepare the data to send
       const profileData = {
         name: editForm.name,
         email: editForm.email,
@@ -135,7 +127,6 @@ const Profile = () => {
 
       const updatedData = await response.json();
       
-      // Update local state with the response from server
       const transformedData = {
         ...userData,
         name: updatedData.name || editForm.name,
@@ -179,30 +170,6 @@ const Profile = () => {
     console.log('Edit listing:', itemId);
   };
 
-  const handleRemoveSaved = async (itemId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/auth/saved/${itemId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        fetchUserData();
-        showNotification('Item removed from saved');
-      }
-    } catch (error) {
-      console.error('Error removing saved item:', error);
-      showNotification('Failed to remove item', 'error');
-    }
-  };
-
-  const handleContactSeller = (sellerId) => {
-    console.log('Contact seller:', sellerId);
-  };
-
   if (loading) {
     return (
       <div className="ff-profile-container">
@@ -241,7 +208,6 @@ const Profile = () => {
 
   return (
     <div className="ff-profile-container">
-      {/* Header Navigation */}
       <div className="ff-header-nav">
         <div className="ff-nav-left">
           <button onClick={handleGoBack} className="ff-nav-home-btn">
@@ -252,7 +218,6 @@ const Profile = () => {
         <div className="ff-nav-right"></div>
       </div>
 
-      {/* Notification */}
       {notification && (
         <div className={`ff-notification ${notification.type === 'success' ? 'ff-notification-success' : 'ff-notification-error'}`}>
           <span className="ff-notification-icon">
@@ -285,7 +250,6 @@ const Profile = () => {
               📍 {userData.location}
             </p>
 
-            {/* Profile Completeness */}
             <div className="ff-profile-completeness">
               <div className="ff-completeness-header">
                 <span className="ff-completeness-label">Profile Completeness</span>
@@ -301,30 +265,6 @@ const Profile = () => {
             </button>
           </div>
 
-          <div className="ff-profile-stats">
-            <div className="ff-stat-item ff-stat-listings">
-              <span className="ff-stat-icon">🛍️</span>
-              <div>
-                <span className="ff-stat-number">{userData.stats.listings}</span>
-                <span className="ff-stat-label">Active Listings</span>
-              </div>
-            </div>
-            <div className="ff-stat-item ff-stat-rating">
-              <span className="ff-stat-icon">⭐</span>
-              <div>
-                <span className="ff-stat-number">{userData.stats.rating.toFixed(1)}</span>
-                <span className="ff-stat-label">Average Rating</span>
-              </div>
-            </div>
-            <div className="ff-stat-item ff-stat-sold">
-              <span className="ff-stat-icon">💚</span>
-              <div>
-                <span className="ff-stat-number">{userData.stats.sold}</span>
-                <span className="ff-stat-label">Items Sold</span>
-              </div>
-            </div>
-          </div>
-
           <nav className="ff-profile-nav">
             <button 
               className={`ff-nav-item ${activeSection === 'about' ? 'ff-active' : ''}`}
@@ -337,18 +277,6 @@ const Profile = () => {
               onClick={() => setActiveSection('listings')}
             >
               <span className="ff-nav-icon">📦</span> My Listings
-            </button>
-            <button 
-              className={`ff-nav-item ${activeSection === 'saved' ? 'ff-active' : ''}`}
-              onClick={() => setActiveSection('saved')}
-            >
-              <span className="ff-nav-icon">❤️</span> Saved Items
-            </button>
-            <button 
-              className={`ff-nav-item ${activeSection === 'reviews' ? 'ff-active' : ''}`}
-              onClick={() => setActiveSection('reviews')}
-            >
-              <span className="ff-nav-icon">⭐</span> Reviews
             </button>
           </nav>
         </aside>
@@ -449,88 +377,9 @@ const Profile = () => {
               )}
             </div>
           )}
-
-          {activeSection === 'saved' && (
-            <div className="ff-content-section">
-              <h3 className="ff-section-title">Saved Items</h3>
-              {userData.savedItems && userData.savedItems.length > 0 ? (
-                <div className="ff-saved-list">
-                  {userData.savedItems.map(item => (
-                    <div key={item._id || item.id} className="ff-saved-item">
-                      <div className="ff-saved-image">
-                        {item.image ? (
-                          <img src={item.image} alt={item.name} />
-                        ) : (
-                          '📦'
-                        )}
-                      </div>
-                      <div className="ff-saved-details">
-                        <h4 className="ff-saved-name">{item.name || item.title}</h4>
-                        <p className="ff-saved-price">Rs.{item.price}</p>
-                        <p className="ff-saved-seller">by {item.sellerName || item.seller}</p>
-                      </div>
-                      <div className="ff-saved-actions">
-                        <button 
-                          className="ff-remove-btn"
-                          onClick={() => handleRemoveSaved(item._id || item.id)}
-                          title="Remove from saved"
-                        >
-                          ❤️
-                        </button>
-                        <button 
-                          className="ff-contact-seller-btn"
-                          onClick={() => handleContactSeller(item.sellerId)}
-                        >
-                          Contact
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="ff-empty-state">
-                  <div className="ff-empty-icon">❤️</div>
-                  <h4>No saved items</h4>
-                  <p>Items you save will appear here</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeSection === 'reviews' && (
-            <div className="ff-content-section">
-              <h3 className="ff-section-title">Reviews ({userData.reviews?.length || 0})</h3>
-              <div className="ff-reviews-summary">
-                <div className="ff-rating-large">
-                  <span className="ff-rating-star">⭐</span>
-                  <span className="ff-rating-number">{userData.stats.rating.toFixed(1)}</span>
-                </div>
-                <p className="ff-rating-text">Based on {userData.reviews?.length || 0} reviews</p>
-              </div>
-              {userData.reviews && userData.reviews.length > 0 ? (
-                <div className="ff-reviews-list">
-                  {userData.reviews.map((review, index) => (
-                    <div key={review._id || index} className="ff-review-item">
-                      <div className="ff-review-header">
-                        <strong>{review.reviewerName || 'Anonymous'}</strong>
-                        <div className="ff-review-stars">{'⭐'.repeat(review.rating || 5)}</div>
-                      </div>
-                      <p className="ff-review-text">{review.comment || review.text}</p>
-                      <span className="ff-review-date">
-                        {new Date(review.date || review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="ff-empty-message">No reviews yet.</p>
-              )}
-            </div>
-          )}
         </main>
       </div>
 
-      {/* Edit Profile Modal */}
       {showEditModal && (
         <div className="ff-modal-overlay">
           <div className="ff-modal-content">
@@ -559,7 +408,6 @@ const Profile = () => {
             </div>
 
             <div className="ff-modal-body">
-              {/* Profile Image Upload */}
               <div className="ff-image-upload-section">
                 <label className="ff-image-upload-label">
                   <div className="ff-upload-avatar-wrapper">
@@ -582,7 +430,6 @@ const Profile = () => {
                 <p className="ff-upload-hint">Click to upload profile picture</p>
               </div>
 
-              {/* Form Fields */}
               <div className="ff-form-grid">
                 <div className="ff-form-group">
                   <label>Full Name</label>
@@ -644,7 +491,6 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="ff-modal-actions">
                 <button
                   onClick={() => {
