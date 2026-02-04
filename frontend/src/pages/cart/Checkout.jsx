@@ -13,10 +13,8 @@ const Checkout = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phone: '',
     campus: '',
-    pickupDate: '',
-    pickupTime: '',
+    customCampus: '',
     notes: ''
   });
 
@@ -30,8 +28,7 @@ const Checkout = () => {
       setFormData(prev => ({
         ...prev,
         fullName: user.name || user.fullName || '',
-        email: user.email || '',
-        phone: user.phone || user.phoneNumber || ''
+        email: user.email || ''
       }));
     }
   }, [user]);
@@ -66,9 +63,7 @@ const Checkout = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
-    }
+    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -76,24 +71,12 @@ const Checkout = () => {
       newErrors.email = 'Email is invalid';
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^(\+977)?[9][6-9]\d{8}$/.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Please enter a valid Nepali phone number';
-    }
 
-    if (!formData.campus) {
-      newErrors.campus = 'Please select a campus location';
-    }
+    if (!formData.campus) newErrors.campus = 'Please select a campus location';
 
-    if (!formData.pickupDate) {
-      newErrors.pickupDate = 'Please select a pickup date';
+    if (formData.campus === 'other' && !formData.customCampus.trim()) {
+      newErrors.customCampus = 'Please enter your custom location';
     }
-
-    if (!formData.pickupTime) {
-      newErrors.pickupTime = 'Please select a pickup time';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -122,7 +105,6 @@ const Checkout = () => {
     }
 
     const token = getAuthToken();
-
     if (!token) {
       alert('Authentication token not found. Please log in again.');
       navigate('/login', { state: { from: '/checkout' } });
@@ -144,22 +126,24 @@ const Checkout = () => {
         }))
       }));
 
+      const finalCampus = formData.campus === 'other' ? formData.customCampus : formData.campus;
+
       const orderData = {
         sellers: sellers,
         totalAmount: total,
         buyerName: formData.fullName,
         buyerEmail: formData.email,
-        buyerLocation: formData.campus || 'Campus',
+        buyerLocation: finalCampus,
         buyerId: user?.id || user?._id || null,
         shippingAddress: {
           fullName: formData.fullName,
-          phone: formData.phone,
-          addressLine1: formData.campus,
+          phone: user?.phone|| '',
+          addressLine1: finalCampus,
           city: 'Campus',
           country: 'Nepal'
         },
         paymentMethod: 'cash_on_delivery',
-        specialInstructions: `Pickup Date: ${formData.pickupDate}, Time: ${formData.pickupTime}. ${formData.notes}`
+         specialInstructions: formData.notes || ''
       };
 
       console.log('Submitting order:', orderData);
@@ -176,16 +160,11 @@ const Checkout = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-
         clearCart();
-
         alert(`🎉 Order placed successfully!\n\nOrder ID: ${data.data?.orderId || 'N/A'}\n\nYou will be redirected to your orders page.`);
-
         navigate('/orders', { state: { orderId: data.data?.orderId } });
       } else {
-
         const errorMessage = data.message || data.error || 'Failed to place order. Please try again.';
-        
         if (response.status === 401 || errorMessage.includes('token') || errorMessage.includes('authentication')) {
           alert('Your session has expired. Please log in again.');
           navigate('/login', { state: { from: '/checkout' } });
@@ -195,7 +174,6 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error('Error placing order:', error);
-      
       if (error.message.includes('fetch')) {
         alert('Unable to connect to the server. Please check your internet connection and try again.');
       } else {
@@ -206,11 +184,7 @@ const Checkout = () => {
     }
   };
 
-  const today = new Date().toISOString().split('T')[0];
-
-  if (cartItems.length === 0) {
-    return null;
-  }
+  if (cartItems.length === 0) return null;
 
   return (
     <>
@@ -234,10 +208,9 @@ const Checkout = () => {
                 <h2>Buyer Information</h2>
 
                 <form onSubmit={handleSubmit}>
-
                   <div className="form-section">
                     <h3>Contact Information</h3>
-                    
+
                     <div className="form-group">
                       <label htmlFor="fullName">Full Name *</label>
                       <input
@@ -267,27 +240,12 @@ const Checkout = () => {
                       />
                       {errors.email && <span className="error-message">{errors.email}</span>}
                     </div>
-
-                    <div className="form-group">
-                      <label htmlFor="phone">Phone Number *</label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        required
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="+977 9800000000"
-                        className={errors.phone ? 'input-error' : ''}
-                      />
-                      {errors.phone && <span className="error-message">{errors.phone}</span>}
-                    </div>
                   </div>
 
                   {/* Pickup Details */}
                   <div className="form-section">
                     <h3>Pickup Details</h3>
-                    
+
                     <div className="form-group">
                       <label htmlFor="campus">Campus Location *</label>
                       <select
@@ -305,40 +263,24 @@ const Checkout = () => {
                         <option value="sports">Sports Complex</option>
                         <option value="hostel">Hostel Area</option>
                         <option value="parking">Parking Lot</option>
+                        <option value="other">Other</option> {/* <-- Added Other */}
                       </select>
                       {errors.campus && <span className="error-message">{errors.campus}</span>}
                     </div>
 
-                    <div className="form-row">
+                    {formData.campus === 'other' && (
                       <div className="form-group">
-                        <label htmlFor="pickupDate">Preferred Date *</label>
+                        <label>Enter Location *</label>
                         <input
-                          type="date"
-                          id="pickupDate"
-                          name="pickupDate"
-                          required
-                          min={today}
-                          value={formData.pickupDate}
+                          type="text"
+                          name="customCampus"
+                          value={formData.customCampus}
                           onChange={handleInputChange}
-                          className={errors.pickupDate ? 'input-error' : ''}
+                          className={errors.customCampus ? 'input-error' : ''}
                         />
-                        {errors.pickupDate && <span className="error-message">{errors.pickupDate}</span>}
+                        {errors.customCampus && <span className="error-message">{errors.customCampus}</span>}
                       </div>
-
-                      <div className="form-group">
-                        <label htmlFor="pickupTime">Preferred Time *</label>
-                        <input
-                          type="time"
-                          id="pickupTime"
-                          name="pickupTime"
-                          required
-                          value={formData.pickupTime}
-                          onChange={handleInputChange}
-                          className={errors.pickupTime ? 'input-error' : ''}
-                        />
-                        {errors.pickupTime && <span className="error-message">{errors.pickupTime}</span>}
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   <div className="form-section">
@@ -374,19 +316,8 @@ const Checkout = () => {
                     className="confirm-button"
                     disabled={loading}
                   >
-                    {loading ? (
-                      <>
-                        <span className="spinner"></span>
-                        Placing Order...
-                      </>
-                    ) : (
-                      `Confirm Order - Rs.${total.toFixed(2)}`
-                    )}
+                    {loading ? 'Placing Order...' : `Confirm Order - Rs.${total.toFixed(2)}`}
                   </button>
-
-                  <p className="payment-info">
-                    💰 Payment Method: Cash on Delivery
-                  </p>
                 </form>
               </div>
             </div>
@@ -402,9 +333,7 @@ const Checkout = () => {
                         src={item.image || item.imageUrl || '/placeholder.png'}
                         alt={item.name || item.title}
                         className="summary-item-image"
-                        onError={(e) => {
-                          e.target.src = '/placeholder.png';
-                        }}
+                        onError={(e) => { e.target.src = '/placeholder.png'; }}
                       />
                       <div className="summary-item-details">
                         <div className="summary-item-name">{item.name || item.title}</div>
@@ -432,12 +361,6 @@ const Checkout = () => {
                 <div className="total-row">
                   <span className="total-label">Total</span>
                   <span className="total-amount">Rs.{total.toFixed(2)}</span>
-                </div>
-
-                <div className="summary-info">
-                  <p>✓ Cash on Delivery</p>
-                  <p>✓ Campus Pickup Available</p>
-                  <p>✓ Contact Seller Directly</p>
                 </div>
               </div>
             </div>

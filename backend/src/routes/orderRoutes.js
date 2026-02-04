@@ -157,15 +157,14 @@ router.post('/direct-purchase', authMiddleware, async (req, res) => {
 await createNotification({
   userId: sellerId,
   title: 'New Order Received',
-   message: `A buyer from ${buyerLocation} ordered "${productName}".\nBuyer Phone: ${buyerPhone}`,
-  type: 'order'
+  message: `A buyer from ${buyerLocation} ordered "${productName}".\nBuyer Phone: ${buyerPhone}`,
 });
 
 // BUYER notification
 await createNotification({
   userId: req.user.id,
   title: 'Order Placed Successfully',
-    message: `Your order for "${productName}" will be delivered to ${buyerLocation}.\nSeller Phone: ${sellerPhone}`,
+   message: `Your order for "${productName}" will be delivered to ${buyerLocation}.\nSeller Phone: ${sellerPhone}`,
       type: 'order'
 });
 
@@ -221,93 +220,89 @@ router.post('/cart-checkout', authMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: 'At least one seller with items is required' });
     }
 
-    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-    const productIdsToDelete = [];
+const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+const productIdsToDelete = [];
 
-    const processedSellers = sellers.map(seller => {
-      const sellerSubtotal = seller.items.reduce((sum, item) => {
-        productIdsToDelete.push(item.productId);
-        return sum + (item.price * item.quantity);
-      }, 0);
+const processedSellers = await Promise.all(sellers.map(async seller => {
+  let sellerUser = null;
+  if (seller.sellerId) sellerUser = await User.findById(seller.sellerId);
+  const sellerPhone = sellerUser?.phone || 'Not provided';
 
-      return {
-        sellerId: seller.sellerId || null,
-        sellerName: seller.sellerName || 'Unknown Seller',
-        items: seller.items.map(item => ({
-          productId: item.productId,
-          productName: item.productName || item.name,
-          productImage: item.productImage || item.image,
-          quantity: item.quantity || 1,
-          price: parseFloat(item.price),
-          subtotal: parseFloat(item.price) * (item.quantity || 1)
-        })),
-        sellerSubtotal,
-        sellerStatus: 'pending'
-      };
+  const items = seller.items.map(it => {
+    productIdsToDelete.push(it.productId);
+    return { ...it, subtotal: it.price * it.quantity };
+  });
+
+  return {
+    sellerId: seller.sellerId || null,
+    sellerName: seller.sellerName || 'Unknown',
+    items,
+    sellerSubtotal: items.reduce((sum, it) => sum + it.subtotal, 0),
+    sellerStatus: 'pending',
+    sellerPhone
+  };
+}));
+
+const newOrder = new Order({
+  orderId,
+  orderType: 'cart_checkout',
+  buyerInfo: { name: buyerName, email: buyerEmail, location: buyerLocation },
+  buyerId: req.user.id,
+  totalAmount: parseFloat(totalAmount),
+  sellers: processedSellers,
+  shippingAddress,
+  paymentMethod: paymentMethod || 'cash_on_delivery',
+  specialInstructions: specialInstructions || '',
+  status: 'pending',
+  paymentStatus: 'pending'
+});
+
+const savedOrder = await newOrder.save();
+
+const buyerUser = await User.findById(req.user.id);
+const buyerPhone = buyerUser?.phone || 'Not provided';
+
+// Notifications
+for (const seller of processedSellers) {
+  if (!seller.sellerId) continue;
+
+  
+  const sellerUser = await User.findById(seller.sellerId);
+  const sellerPhone = sellerUser?.phone || 'Not provided';
+  
+  for (const item of seller.items) {
+    const productName = item.productName || item.name;
+
+    // Seller notification
+    await createNotification({
+      userId: seller.sellerId,
+      title: 'New Order Received',
+      message: `A buyer from ${buyerLocation} ordered "${productName}".\nBuyer Phone: ${buyerPhone}`,
+      type: 'order'
     });
 
-    const newOrder = new Order({
-      orderId,
-      orderType: 'cart_checkout',
-      buyerInfo: { name: buyerName, email: buyerEmail, location: buyerLocation },
-      buyerId: req.user.id,
-      totalAmount: parseFloat(totalAmount),
-      sellers: processedSellers,
-      shippingAddress: shippingAddress || {},
-      paymentMethod: paymentMethod || 'cash_on_delivery',
-      specialInstructions: specialInstructions || '',
-      status: 'pending',
-      paymentStatus: 'pending'
+    // Buyer notification
+    await createNotification({
+      userId: req.user.id,
+      title: 'Order Placed Successfully',
+      message: `Your order for "${productName}" will be delivered to ${buyerLocation}.\nSeller Phone: ${sellerPhone}`,
+      type: 'order'
     });
+  }
+}
 
-    const savedOrder = await newOrder.save();
+// Delete products
+try {
+  const Product = mongoose.model('Product');
+  await Product.deleteMany({ _id: { $in: productIdsToDelete } });
+} catch (err) { console.error(err); }
 
-    // 🔹 Fetch buyer phone
-    const buyerUser = await User.findById(req.user.id);
-    const buyerPhone = buyerUser?.phone || 'Not provided';
+res.status(201).json({
+  success: true,
+  message: 'Order placed successfully',
+  data: { orderId: savedOrder.orderId }
+});
 
-    // 🔔 Notifications
-    for (const seller of processedSellers) {
-      if (!seller.sellerId) continue; // skip if sellerId missing
-      const sellerUser = await User.findById(seller.sellerId);
-      const sellerPhone = sellerUser?.phone || 'Not provided';
-
-      // Seller notification
-      await createNotification({
-        userId: seller.sellerId,
-        title: 'New Order Received',
-        message: `You received an order with ${seller.items.length} item(s).\nBuyer Phone: ${buyerPhone}`,
-        type: 'order'
-      });
-
-      // Buyer notification for this seller
-      await createNotification({
-        userId: req.user.id,
-        title: 'Order Placed Successfully',
-        message: `Your order will be shipped to ${buyerLocation}.\nSeller Phone: ${sellerPhone}`,
-        type: 'order'
-      });
-    }
-
-    // Delete all purchased products
-    try {
-      const Product = mongoose.model('Product');
-      await Product.deleteMany({ _id: { $in: productIdsToDelete } });
-    } catch (deleteError) {
-      console.error('Error deleting products:', deleteError.message);
-    }
-
-    return res.status(201).json({
-      success: true,
-      message: 'Order placed successfully',
-      data: {
-        orderId: savedOrder.orderId,
-        orderType: savedOrder.orderType,
-        totalAmount: savedOrder.totalAmount,
-        status: savedOrder.status,
-        orderDate: savedOrder.orderDate
-      }
-    });
 
   } catch (error) {
     console.error('Cart checkout error:', error.message);
