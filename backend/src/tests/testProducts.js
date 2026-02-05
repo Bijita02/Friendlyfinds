@@ -21,7 +21,6 @@ const testEverything = async () => {
   await signup('seller@test.com', 'password123');
   await signup('buyer@test.com', 'password123');
   
-  // Get the actual user IDs from database
   const seller = await User.findOne({ email: 'seller@test.com' });
   const buyer = await User.findOne({ email: 'buyer@test.com' });
   

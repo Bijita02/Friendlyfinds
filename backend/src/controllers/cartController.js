@@ -1,33 +1,27 @@
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 
-// Add item to cart
 const addToCart = async (userId, productId, quantity = 1) => {
   try {
-    // Find user's cart or create new one
+ 
     let cart = await Cart.findOne({ userId });
 
     if (!cart) {
-      // Create new cart if doesn't exist
+ 
       cart = new Cart({ userId, items: [] });
     }
 
-    // Check if product already in cart
     const existingItemIndex = cart.items.findIndex(
       item => item.productId.toString() === productId
     );
 
     if (existingItemIndex > -1) {
-      // Product already in cart, update quantity
       cart.items[existingItemIndex].quantity += quantity;
     } else {
-      // Add new product to cart
       cart.items.push({ productId, quantity });
     }
 
     await cart.save();
-    
-    // Populate product details before returning
     await cart.populate('items.productId');
 
     return { 
@@ -44,7 +38,6 @@ const addToCart = async (userId, productId, quantity = 1) => {
   }
 };
 
-// Get user's cart
 const getCart = async (userId) => {
   try {
     const cart = await Cart.findOne({ userId })
@@ -70,7 +63,6 @@ const getCart = async (userId) => {
   }
 };
 
-// Update item quantity in cart
 const updateCartItem = async (userId, productId, quantity) => {
   try {
     const cart = await Cart.findOne({ userId });
@@ -94,10 +86,8 @@ const updateCartItem = async (userId, productId, quantity) => {
     }
 
     if (quantity <= 0) {
-      // Remove item if quantity is 0 or less
       cart.items.splice(itemIndex, 1);
     } else {
-      // Update quantity
       cart.items[itemIndex].quantity = quantity;
     }
 
@@ -118,7 +108,6 @@ const updateCartItem = async (userId, productId, quantity) => {
   }
 };
 
-// Remove item from cart
 const removeFromCart = async (userId, productId) => {
   try {
     const cart = await Cart.findOne({ userId });
@@ -151,7 +140,6 @@ const removeFromCart = async (userId, productId) => {
   }
 };
 
-// Clear entire cart
 const clearCart = async (userId) => {
   try {
     const cart = await Cart.findOne({ userId });

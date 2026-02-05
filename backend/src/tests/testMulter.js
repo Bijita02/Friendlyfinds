@@ -10,7 +10,7 @@ app.use('/api/products', productRoutes);
 
 connectDB();
 
-const PORT = 5001; // Different port to not conflict
+const PORT = 5001;
 
 app.listen(PORT, () => {
   console.log(`🧪 Test server running on http://localhost:${PORT}`);
