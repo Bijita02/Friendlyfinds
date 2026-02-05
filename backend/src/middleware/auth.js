@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 const signup = async (email, password, username) => {
   try {
@@ -13,12 +16,23 @@ const signup = async (email, password, username) => {
     const newUser = new User({
       username: username || email.split('@')[0],
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      name: username || email.split('@')[0] 
     });
 
     await newUser.save();
 
-    const token = `temp-jwt-token-${newUser._id}-${Date.now()}`;
+    let token;
+    try {
+      token = jwt.sign(
+        { id: newUser._id, email: newUser.email },
+        JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+    } catch (jwtError) {
+      console.warn('JWT signing failed, using temp token:', jwtError);
+      token = `temp-jwt-token-${newUser._id}-${Date.now()}`;
+    }
 
     return { 
       success: true,
@@ -26,7 +40,10 @@ const signup = async (email, password, username) => {
       user: {
         id: newUser._id,
         username: newUser.username,
-        email: newUser.email
+        email: newUser.email,
+        name: newUser.name,
+        phone: newUser.phone,
+        location: newUser.location
       },
       token
     };
@@ -47,7 +64,17 @@ const login = async (email, password) => {
       return { success: false, message: 'Invalid password' };
     }
 
-    const token = `temp-jwt-token-${user._id}-${Date.now()}`;
+    let token;
+    try {
+      token = jwt.sign(
+        { id: user._id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+    } catch (jwtError) {
+      console.warn('JWT signing failed, using temp token:', jwtError);
+      token = `temp-jwt-token-${user._id}-${Date.now()}`;
+    }
 
     return { 
       success: true,
@@ -55,7 +82,11 @@ const login = async (email, password) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        location: user.location,
+        profileImage: user.profileImage
       },
       token
     };
@@ -76,24 +107,34 @@ const authMiddleware = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
 
-  if (!token.startsWith('temp-jwt-token-')) {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = { 
+      id: decoded.id, 
+      email: decoded.email 
+    };
+    return next();
+  } catch (jwtError) {
+
+    if (token.startsWith('temp-jwt-token-')) {
+      const userId = token.replace('temp-jwt-token-', '').split('-')[0];
+
+      if (!userId || userId.length !== 24) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid user ID in token'
+        });
+      }
+
+      req.user = { id: userId };
+      return next();
+    }
+
     return res.status(401).json({
       success: false,
-      message: 'Invalid token format'
+      message: 'Invalid or expired token'
     });
   }
-
-  const userId = token.replace('temp-jwt-token-', '').split('-')[0];
-
-  if (!userId || userId.length !== 24) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid user ID in token'
-    });
-  }
-
-  req.user = { id: userId };
-  next();
 };
 
 module.exports = { signup, login, authMiddleware };
