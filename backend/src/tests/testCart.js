@@ -13,8 +13,7 @@ const testCart = async () => {
   await connectDB();
 
   console.log('\n=== STEP 1: Get test user and product ===');
-  
-  // Find an existing user and product from your database
+ 
   const user = await User.findOne();
   const product = await Product.findOne();
 
