@@ -16,7 +16,6 @@ export default function Seller() {
     price: '',
     description: '',
     category: '',
-    stock: '',
     address: '',
     condition: '',
     image: null,
@@ -69,7 +68,6 @@ export default function Seller() {
       price: '',
       description: '',
       category: '',
-      stock: '',
       address: '',
       condition: '',
       image: null,
@@ -87,7 +85,6 @@ export default function Seller() {
     formPayload.append('price', formData.price);
     formPayload.append('description', formData.description);
     formPayload.append('category', formData.category);
-    formPayload.append('stock', formData.stock);
     formPayload.append('address', formData.address);
     formPayload.append('condition', formData.condition);
     formPayload.append('sellerId', sellerId);
@@ -141,13 +138,14 @@ export default function Seller() {
     item.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Helper function to format price in Rs
+  const formatPrice = (price) => `Rs ${Number(price).toLocaleString()}`;
+
   return (
     <>
       <Navbar />
 
       <div className="seller-page-bg">
-    
-
         <div className="seller-header">
           <button className="btn-primary" onClick={() => setShowModal(true)}>
             <Plus size={20} /> Add New Item
@@ -157,183 +155,168 @@ export default function Seller() {
         </div>
 
         <div className="seller-container">
-         <div className="items-grid">
-
-          {filteredItems.length === 0 ? (
-            <div className="empty-state">
-              <Image size={64} />
-              <h3>No items found</h3>
-              <p>Start by adding your first item</p>
-            </div>
-          ) : (
-            filteredItems.map(item => (
-              <div key={item._id} className="item-card">
-                <div className="item-image">
-                  {item.image ? (
-                    <img src={item.image} alt={item.title} />
-                  ) : (
-                    <div className="no-image"><Image size={48} /></div>
-                  )}
-                </div>
-                <div className="item-content">
-                  <h3>{item.title}</h3>
-                  <p className="item-price">Rs{item.price}</p>
-                  <p className="item-description">{item.description}</p>
-                  <div className="item-meta">
-                    <span className="item-category">{item.category}</span>
-                    <span className="item-stock">Stock: {item.stock}</span>
+          <div className="items-grid">
+            {filteredItems.length === 0 ? (
+              <div className="empty-state">
+                <Image size={64} />
+                <h3>No items found</h3>
+                <p>Start by adding your first item</p>
+              </div>
+            ) : (
+              filteredItems.map(item => (
+                <div key={item._id} className="item-card">
+                  <div className="item-image">
+                    {item.image ? (
+                      <img src={item.image} alt={item.title} />
+                    ) : (
+                      <div className="no-image"><Image size={48} /></div>
+                    )}
+                  </div>
+                  <div className="item-content">
+                    <h3>{item.title}</h3>
+                    <p className="item-price">{formatPrice(item.price)}</p>
+                    <p className="item-description">{item.description}</p>
+                    <div className="item-meta">
+                      <span className="item-category">{item.category}</span>
+                    </div>
+                  </div>
+                  <div className="item-actions">
+                    <button className="btn-delete" onClick={() => handleDelete(item._id)}>
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
-                <div className="item-actions">
-                  <button className="btn-delete" onClick={() => handleDelete(item._id)}>
-                    <Trash2 size={18} />
-                  </button>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={resetForm}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Add New Item</h2>
+              <button className="btn-close" onClick={resetForm}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="item-form">
+              <div className="image-upload-section">
+                <label className="image-upload-label">
+                  {formData.imagePreview ? (
+                    <img 
+                      src={formData.imagePreview} 
+                      alt="Preview" 
+                      className="image-preview" 
+                    />
+                  ) : (
+                    <div className="upload-placeholder">
+                      <Upload size={48} />
+                      <p>Click to upload image</p>
+                    </div>
+                  )}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageChange} 
+                    style={{ display: 'none' }} 
+                  />
+                </label>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Item Name *</label>
+                  <input 
+                    type="text" 
+                    name="name" 
+                    value={formData.name} 
+                    onChange={handleChange} 
+                    placeholder="Enter item name"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Price (Rs) *</label>
+                  <input 
+                    type="number" 
+                    name="price" 
+                    value={formData.price} 
+                    onChange={handleChange} 
+                    placeholder="Enter price in Rs"
+                    required
+                  />
                 </div>
               </div>
-            ))
-          )}
-        </div>
-        </div>
-      </div>
 
-{showModal && (
-  <div className="modal-overlay" onClick={resetForm}>
-    <div className="modal-content" onClick={e => e.stopPropagation()}>
-      <div className="modal-header">
-        <h2>Add New Item</h2>
-        <button className="btn-close" onClick={resetForm}>
-          <X size={24} />
-        </button>
-      </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Address *</label>
+                  <input 
+                    type="text" 
+                    name="address" 
+                    value={formData.address} 
+                    onChange={handleChange} 
+                    placeholder="Enter address"
+                    required
+                  />
+                </div>
 
-      <form onSubmit={handleSubmit} className="item-form">
-
-        <div className="image-upload-section">
-          <label className="image-upload-label">
-            {formData.imagePreview ? (
-              <img 
-                src={formData.imagePreview} 
-                alt="Preview" 
-                className="image-preview" 
-              />
-            ) : (
-              <div className="upload-placeholder">
-                <Upload size={48} />
-                <p>Click to upload image</p>
+                <div className="form-group">
+                  <label>Category *</label>
+                  <select 
+                    name="category" 
+                    value={formData.category} 
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select category</option>
+                    <option value="Stationery">Stationery</option>
+                    <option value="Furniture">Furniture</option>
+                  </select>
+                </div>
               </div>
-            )}
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleImageChange} 
-              style={{ display: 'none' }} 
-            />
-          </label>
-        </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <label>Item Name *</label>
-            <input 
-              type="text" 
-              name="name" 
-              value={formData.name} 
-              onChange={handleChange} 
-              placeholder="Enter item name"
-              required
-            />
-          </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Condition *</label>
+                  <input 
+                    type="text" 
+                    name="condition" 
+                    value={formData.condition} 
+                    onChange={handleChange} 
+                    placeholder="e.g., New, Like New, Good"
+                    required
+                  />
+                </div>
+              </div>
 
-          <div className="form-group">
-            <label>Price *</label>
-            <input 
-              type="number" 
-              name="price" 
-              value={formData.price} 
-              onChange={handleChange} 
-              placeholder="Enter price"
-              required
-            />
-          </div>
-        </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  name="description" 
+                  value={formData.description} 
+                  onChange={handleChange} 
+                  placeholder="Enter item description"
+                  rows={4}
+                />
+              </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <label>Address *</label>
-            <input 
-              type="text" 
-              name="address" 
-              value={formData.address} 
-              onChange={handleChange} 
-              placeholder="Enter address"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Category *</label>
-            <select 
-              name="category" 
-              value={formData.category} 
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select category</option>
-              <option value="Stationery">Stationery</option>
-              <option value="Furniture">Furniture</option>
-            </select>
+              <div className="form-actions">
+                <button type="button" className="btn-cancel" onClick={resetForm}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-submit">
+                  Add Item
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>Condition *</label>
-            <input 
-              type="text" 
-              name="condition" 
-              value={formData.condition} 
-              onChange={handleChange} 
-              placeholder="e.g., New, Like New, Good"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Stock *</label>
-            <input 
-              type="number" 
-              name="stock" 
-              value={formData.stock} 
-              onChange={handleChange} 
-              placeholder="Enter stock quantity"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Description</label>
-          <textarea 
-            name="description" 
-            value={formData.description} 
-            onChange={handleChange} 
-            placeholder="Enter item description"
-            rows={4}
-          />
-        </div>
-
-        <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={resetForm}>
-            Cancel
-          </button>
-          <button type="submit" className="btn-submit">
-            Add Item
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
     </>
   );
 }
