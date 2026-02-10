@@ -18,7 +18,7 @@ const MultipleImageUpload = () => {
 
     const formData = new FormData();
     for (let i = 0; i < selectedFiles.length; i++) {
-      formData.append("images", selectedFiles[i]); // Must match Multer field name
+      formData.append("images", selectedFiles[i]); 
     }
 
     setLoading(true);
@@ -30,9 +30,9 @@ const MultipleImageUpload = () => {
       });
 
       const data = await response.json();
-      setUploadedImages(data.files); // Store uploaded file paths
+      setUploadedImages(data.files); 
       setLoading(false);
-      setSelectedFiles([]); // Clear selected files
+      setSelectedFiles([]); 
     } catch (err) {
       console.error(err);
       alert("Upload failed!");
@@ -63,7 +63,7 @@ const MultipleImageUpload = () => {
             {uploadedImages.map((file, idx) => (
               <img
                 key={idx}
-                src={`http://localhost:5000${file}`} // prepend backend URL
+                src={`http://localhost:5000${file}`} 
                 alt="uploaded"
                 width={150}
                 style={{ border: "1px solid #ccc", padding: "2px" }}

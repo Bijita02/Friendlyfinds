@@ -6,7 +6,6 @@ const { createNotification } = require('../controllers/notificationController');
 const { authMiddleware } = require('../middleware/auth');
 const User = require('../models/user');
 
-// Order Schema
 const orderSchema = new mongoose.Schema({
   orderId: {
     type: String,
@@ -106,7 +105,6 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
-// POST: Direct Purchase
 router.post('/direct-purchase', authMiddleware, async (req, res) => {
   try {
     const { 
@@ -153,14 +151,12 @@ router.post('/direct-purchase', authMiddleware, async (req, res) => {
     const buyerPhone = buyerUser?.phone || 'Not provided';
     const sellerPhone = sellerUser?.phone || 'Not provided';
 
-    // SELLER notification
 await createNotification({
   userId: sellerId,
   title: 'New Order Received',
   message: `A buyer from ${buyerLocation} ordered "${productName}".\nBuyer Phone: ${buyerPhone}`,
 });
 
-// BUYER notification
 await createNotification({
   userId: req.user.id,
   title: 'Order Placed Successfully',
@@ -168,8 +164,6 @@ await createNotification({
       type: 'order'
 });
 
-
-    // Delete product from database
     try {
       const Product = mongoose.model('Product');
       await Product.findByIdAndDelete(productId);
@@ -207,7 +201,6 @@ await createNotification({
   }
 });
 
-// POST: Cart Checkout
 router.post('/cart-checkout', authMiddleware, async (req, res) => {
   try {
     const { sellers, totalAmount, buyerName, buyerEmail, buyerLocation, shippingAddress, paymentMethod, specialInstructions } = req.body;
@@ -262,7 +255,6 @@ const savedOrder = await newOrder.save();
 const buyerUser = await User.findById(req.user.id);
 const buyerPhone = buyerUser?.phone || 'Not provided';
 
-// Notifications
 for (const seller of processedSellers) {
   if (!seller.sellerId) continue;
 
@@ -273,7 +265,6 @@ for (const seller of processedSellers) {
   for (const item of seller.items) {
     const productName = item.productName || item.name;
 
-    // Seller notification
     await createNotification({
       userId: seller.sellerId,
       title: 'New Order Received',
@@ -281,7 +272,6 @@ for (const seller of processedSellers) {
       type: 'order'
     });
 
-    // Buyer notification
     await createNotification({
       userId: req.user.id,
       title: 'Order Placed Successfully',
@@ -291,7 +281,6 @@ for (const seller of processedSellers) {
   }
 }
 
-// Delete products
 try {
   const Product = mongoose.model('Product');
   await Product.deleteMany({ _id: { $in: productIdsToDelete } });
@@ -310,7 +299,6 @@ res.status(201).json({
   }
 });
 
-// GET: Fetch order by ID
 router.get('/order/:orderId', async (req, res) => {
   try {
     const order = await Order.findOne({ orderId: req.params.orderId })
@@ -336,7 +324,6 @@ router.get('/order/:orderId', async (req, res) => {
   }
 });
 
-// GET: Fetch orders by buyer
 router.get('/buyer/orders', async (req, res) => {
   try {
     const { email, buyerId, page = 1, limit = 10 } = req.query;
@@ -375,7 +362,6 @@ router.get('/buyer/orders', async (req, res) => {
   }
 });
 
-// GET: Fetch orders by seller
 router.get('/seller/:sellerId/orders', async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -402,7 +388,6 @@ router.get('/seller/:sellerId/orders', async (req, res) => {
   }
 });
 
-// GET: All orders (admin)
 router.get('/all', async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;

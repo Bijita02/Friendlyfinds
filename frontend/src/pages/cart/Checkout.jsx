@@ -263,7 +263,7 @@ const Checkout = () => {
                         <option value="sports">Sports Complex</option>
                         <option value="hostel">Hostel Area</option>
                         <option value="parking">Parking Lot</option>
-                        <option value="other">Other</option> {/* <-- Added Other */}
+                        <option value="other">Other</option> 
                       </select>
                       {errors.campus && <span className="error-message">{errors.campus}</span>}
                     </div>
