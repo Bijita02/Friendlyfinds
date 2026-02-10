@@ -29,7 +29,6 @@ export const NotificationProvider = ({ children }) => {
     );
   };
 
-  //  INITIAL LOAD + AUTO REFRESH
    useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 5000);

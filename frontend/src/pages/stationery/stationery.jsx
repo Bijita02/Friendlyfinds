@@ -240,7 +240,6 @@ const res = await fetch("http://localhost:5000/api/orders/direct-purchase", {
         </div>
       </div>
 
-{/* BUY MODAL */}
 {showBuyModal && selectedItem && (
   <div className="modal-overlay">
     <div className="modal-content buy-modal">

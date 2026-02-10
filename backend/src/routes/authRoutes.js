@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const Product = require('../models/productModel');
 const { signup, login, authMiddleware } = require('../middleware/auth');
 
 router.post('/register', async (req, res) => {
@@ -60,6 +61,25 @@ router.get('/profile', authMiddleware, async (req, res) => {
       });
     }
     
+    let userListings = [];
+    try {
+      const products = await Product.find({ sellerId: userId });
+      userListings = products.map(product => ({
+        _id: product._id,
+        id: product._id,
+        name: product.title,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        views: product.views || 0,
+        category: product.category,
+        condition: product.condition,
+        description: product.description
+      }));
+    } catch (err) {
+      console.error('Error fetching user listings:', err);
+    }
+    
     res.json({
       name: user.name || user.username || 'User',
       email: user.email || '',
@@ -69,7 +89,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
       bio: user.bio || 'No bio added yet.',
       createdAt: user.createdAt || new Date().toISOString(),
       profileImage: user.profileImage || null,
-      listings: user.listings || []
+      listings: userListings 
     });
     
   } catch (error) {
@@ -94,6 +114,25 @@ router.get('/profile/:userId', async (req, res) => {
       });
     }
 
+    let userListings = [];
+    try {
+      const products = await Product.find({ sellerId: userId });
+      userListings = products.map(product => ({
+        _id: product._id,
+        id: product._id,
+        name: product.title,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        views: product.views || 0,
+        category: product.category,
+        condition: product.condition,
+        description: product.description
+      }));
+    } catch (err) {
+      console.error('Error fetching user listings:', err);
+    }
+
     const profileData = {
       name: user.name || user.username,
       username: user.username,
@@ -103,7 +142,7 @@ router.get('/profile/:userId', async (req, res) => {
       bio: user.bio || 'No bio added yet.',
       profileImage: user.profileImage || null,
       createdAt: user.createdAt,
-      listings: user.listings || []
+      listings: userListings 
     };
 
     res.json(profileData);

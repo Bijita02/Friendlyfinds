@@ -138,7 +138,6 @@ export default function Seller() {
     item.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Helper function to format price in Rs
   const formatPrice = (price) => `Rs ${Number(price).toLocaleString()}`;
 
   return (

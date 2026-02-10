@@ -461,7 +461,7 @@
               inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transform: translateY(-3px) scale(1.02);
 }
-/* Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -540,7 +540,6 @@
   gap: 0;
 }
 
-/* Product Preview Section */
 .modal-product-preview {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 40px;
@@ -632,7 +631,6 @@
   font-size: 1.25rem;
 }
 
-/* Form Section */
 .modal-form-section {
   padding: 40px;
   background: white;
@@ -741,7 +739,6 @@
   font-size: 1.1rem;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .modal-layout {
     grid-template-columns: 1fr;
