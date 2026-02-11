@@ -8,7 +8,6 @@ import logo from '../Assets/logo.png';
 import { useNotifications } from '../../context/NotificationContext';
 import { useState, useRef, useEffect } from 'react';
 
-
 const Navbar = () => {
   const { getCartCount } = useCart();
   const cartCount = getCartCount()
@@ -23,7 +22,6 @@ const notificationRef = useRef(null);
     window.location.reload();
   };
 
-
 const formatTime = (date) => {
   const diff = Math.floor((Date.now() - new Date(date)) / 60000);
   if (diff < 1) return 'Just now';
@@ -36,12 +34,10 @@ const formatTime = (date) => {
     <nav className="navbar">
       <div className="navbar-container">
 
-        {/* Logo */}
         <div className="navbar-logo">
           <img src={logo} alt="Friendly Finds" />
         </div>
 
-        {/* Search Bar */}
         <div className="navbar-search">
           <svg
             width="20"
@@ -63,7 +59,6 @@ const formatTime = (date) => {
           />
         </div>
 
-        {/* Nav Links */}
         <div className="navbar-links">
           <a href="/" className="nav-link">Home</a>
           <a href="/collections" className="nav-link">Collections</a>

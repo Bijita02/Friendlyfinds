@@ -8,9 +8,7 @@ router.get('/profile', auth, async (req, res) => {
 
     const user = await User.findById(req.user.id)
       .select('-password') 
-      .populate('listings')
-      .populate('savedItems') 
-      .populate('reviews'); 
+      .populate('listings'); 
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -29,12 +27,8 @@ router.get('/profile', auth, async (req, res) => {
       createdAt: user.createdAt,
       stats: {
         listings: user.listings?.length || 0,
-        rating: user.rating || 0,
-        sold: user.soldItems?.length || 0
       },
       listings: user.listings || [],
-      savedItems: user.savedItems || [],
-      reviews: user.reviews || []
     };
 
     res.json(profileData);
@@ -65,7 +59,7 @@ router.put('/profile', auth, async (req, res) => {
     }
     if (location !== undefined) user.location = location;
     if (phone !== undefined) user.phone = phone;
-    if (birthdate !== undefined) user.birthdate = birthdate;
+    if (birthdate !== undefined) user.birthdate = birthdate ? new Date(birthdate) : null;
     if (bio !== undefined) user.bio = bio;
     if (profileImage !== undefined) user.profileImage = profileImage;
 
