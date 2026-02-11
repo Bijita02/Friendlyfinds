@@ -51,7 +51,9 @@ const Profile = () => {
         email: data.email || '',
         location: data.location || 'Location not set',
         phone: data.phone || null,
-        birthdate: data.birthdate || '',
+        birthdate: data.birthdate
+         ? data.birthdate.split('T')[0]
+         : '',
         bio: data.bio || 'No bio added yet.',
         createdAt: data.createdAt || new Date().toISOString(),
         profileImage: data.profileImage || null,

@@ -29,10 +29,6 @@ const userSchema = new mongoose.Schema({
       return this.username;
     }
   },
-   phone: {
-    type: String,
-    default: null
-  },
   location: {
     type: String,
     default: 'Location not set'
